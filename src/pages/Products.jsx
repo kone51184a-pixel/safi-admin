@@ -12,7 +12,7 @@ export default function Products() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '',
+    name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '', photo_url: '',
   });
 
   async function load() {
@@ -41,7 +41,7 @@ export default function Products() {
         stock_quantity: Number(form.stock_quantity || 0),
         vendor_id: form.vendor_id || null,
       });
-      setForm({ name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '' });
+      setForm({ name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '', photo_url: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -99,6 +99,16 @@ export default function Products() {
                 <input style={inputStyle} value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Optionnel" />
               </Field>
+              <Field label="Lien photo (URL)">
+                <input style={inputStyle} value={form.photo_url}
+                  onChange={(e) => setForm({ ...form, photo_url: e.target.value })} placeholder="https://…" />
+              </Field>
+              {form.photo_url && (
+                <div style={{ gridColumn: '1/-1' }}>
+                  <img src={form.photo_url} alt="Aperçu" style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--line)' }}
+                    onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              )}
             </div>
             {error && <p style={{ color: 'var(--tomato)', fontSize: 12, marginBottom: 10 }}>{error}</p>}
             <Button type="submit" variant="leaf" disabled={saving}>{saving ? 'Enregistrement…' : "Enregistrer l'article"}</Button>
@@ -115,7 +125,7 @@ export default function Products() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['Produit', 'Vendeur', 'Prix', 'Stock', 'Statut'].map((h) => (
+                {['', 'Produit', 'Vendeur', 'Prix', 'Stock', 'Statut'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -123,6 +133,13 @@ export default function Products() {
             <tbody>
               {products.map((p) => (
                 <tr key={p.id}>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
+                    {p.photo_url ? (
+                      <img src={p.photo_url} alt={p.name} style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--sand)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🥬</div>
+                    )}
+                  </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontWeight: 600 }}>{p.name}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{p.vendor_name || '—'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{Number(p.price).toLocaleString()} F/{p.unit}</td>
