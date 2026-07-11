@@ -28,9 +28,15 @@ export const api = {
   getProducts: (token) => request('/products', { token }),
   createProduct: (token, product) => request('/products', { method: 'POST', body: product, token }),
   updateProduct: (token, id, product) => request(`/products/${id}`, { method: 'PUT', body: product, token }),
+  adjustStock: (token, id, quantity_change, reason) => request(`/products/${id}/stock`, { method: 'PATCH', body: { quantity_change, reason }, token }),
+  getStockMovements: (token) => request('/products/stock/movements', { token }),
 
   getOrders: (token) => request('/orders', { token }),
   getOrder: (token, id) => request(`/orders/${id}`, { token }),
   updateOrderStatus: (token, id, status, deliverer_id) =>
     request(`/orders/${id}/status`, { method: 'PATCH', body: { status, deliverer_id }, token }),
+
+  getClients: (token) => request('/users', { token }),
+  toggleClientActive: (token, id) => request(`/users/${id}/toggle-active`, { method: 'PATCH', token }),
+  getRoles: (token) => request('/users/roles', { token }),
 };

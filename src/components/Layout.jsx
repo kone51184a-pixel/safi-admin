@@ -6,6 +6,10 @@ const navItems = [
   { to: '/vendeurs', label: 'Vendeurs', icon: '◉' },
   { to: '/produits', label: 'Produits', icon: '▤' },
   { to: '/commandes', label: 'Commandes', icon: '▥' },
+  { to: '/stock', label: 'Stock', icon: '▦' },
+  { to: '/utilisateurs', label: 'Utilisateurs', icon: '◈' },
+  { to: '/comptabilite', label: 'Comptabilité', icon: 'Ⓕ' },
+  { to: '/parametres', label: 'Paramètres', icon: '⚙' },
 ];
 
 export default function Layout({ children }) {
