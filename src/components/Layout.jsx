@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,18 +16,22 @@ const navItems = [
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   function handleLogout() {
     logout();
     navigate('/login');
   }
 
+  function handleNavClick() {
+    setOpen(false);
+  }
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{
-        width: 230, background: 'var(--indigo-deep)', color: 'var(--cream)',
-        padding: '22px 0', flexShrink: 0, display: 'flex', flexDirection: 'column'
-      }}>
+    <div className="admin-layout">
+      <div className={`sidebar-overlay ${open ? 'open' : ''}`} onClick={() => setOpen(false)} />
+
+      <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
         <div style={{
           padding: '0 22px 22px', display: 'flex', alignItems: 'center', gap: 9,
           borderBottom: '1px solid rgba(246,241,231,0.1)', marginBottom: 14
@@ -46,6 +51,7 @@ export default function Layout({ children }) {
               key={item.to}
               to={item.to}
               end={item.end}
+              onClick={handleNavClick}
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 11, padding: '11px 22px',
                 fontSize: 13, fontWeight: isActive ? 600 : 500,
@@ -76,9 +82,22 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
-      <main style={{ flex: 1, padding: '28px 34px', overflowY: 'auto' }}>
-        {children}
-      </main>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <div className="mobile-topbar">
+          <button
+            onClick={() => setOpen(true)}
+            style={{ background: 'none', border: 'none', color: 'var(--cream)', fontSize: 22, cursor: 'pointer', padding: 0 }}
+            aria-label="Ouvrir le menu"
+          >
+            ☰
+          </button>
+          <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 15 }}>SAFi Admin</span>
+        </div>
+
+        <main className="admin-main-content">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -53,7 +53,8 @@ export default function Orders() {
         ) : orders.length === 0 ? (
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucune commande pour l'instant.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['N°', 'Client', 'Type', 'Détail', 'Montant', 'Statut', 'Changer statut'].map((h) => (
@@ -86,6 +87,7 @@ export default function Orders() {
               ))}
             </tbody>
           </table>
+</div>
         )}
       </Card>
     </div>

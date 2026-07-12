@@ -56,7 +56,7 @@ export default function Accounting() {
         <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Chargement…</p>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 22 }}>
+          <div className="stat-grid-responsive">
             <StatCard label="Revenu total (livrées)" value={`${totalRevenue.toLocaleString()} F`} />
             <StatCard label="Revenu ce mois" value={`${monthRevenue.toLocaleString()} F`} />
             <StatCard label="En attente d'encaissement" value={`${pendingAmount.toLocaleString()} F`} />
@@ -64,7 +64,8 @@ export default function Accounting() {
           </div>
 
           <Card style={{ padding: 0 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+            <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
               <thead>
                 <tr>
                   {['Date', 'N°', 'Client', 'Montant', 'Statut'].map((h) => (
@@ -84,6 +85,7 @@ export default function Accounting() {
                 ))}
               </tbody>
             </table>
+</div>
           </Card>
 
           <p style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 12 }}>

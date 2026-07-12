@@ -122,7 +122,8 @@ export default function Products() {
         ) : products.length === 0 ? (
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucun produit pour l'instant.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['', 'Produit', 'Vendeur', 'Prix', 'Stock', 'Statut'].map((h) => (
@@ -149,6 +150,7 @@ export default function Products() {
               ))}
             </tbody>
           </table>
+</div>
         )}
       </Card>
     </div>

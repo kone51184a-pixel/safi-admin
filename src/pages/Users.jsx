@@ -44,7 +44,8 @@ export default function Users() {
         ) : clients.length === 0 ? (
           <p style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucun client pour l'instant.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['Nom', 'Type', 'Téléphone', 'Commandes', 'Statut', 'Actions'].map((h) => (
@@ -75,6 +76,7 @@ export default function Users() {
               ))}
             </tbody>
           </table>
+</div>
         )}
       </Card>
 

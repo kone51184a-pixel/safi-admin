@@ -43,7 +43,7 @@ export default function Dashboard() {
 
       {!loading && !error && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 22 }}>
+          <div className="stat-grid-responsive">
             <StatCard label="Commandes totales" value={orders.length} />
             <StatCard label="Demandes à matcher" value={pendingMatch} sub="Nécessitent une action" />
             <StatCard label="En livraison" value={inDelivery} />
@@ -57,6 +57,7 @@ export default function Dashboard() {
             {orders.length === 0 ? (
               <p style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucune commande pour l'instant.</p>
             ) : (
+              <div className="table-scroll">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
                 <thead>
                   <tr>
@@ -77,6 +78,7 @@ export default function Dashboard() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </Card>
 

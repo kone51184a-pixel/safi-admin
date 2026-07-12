@@ -85,7 +85,8 @@ export default function Vendors() {
         ) : vendors.length === 0 ? (
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucun vendeur pour l'instant.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['Nom', 'Téléphone', 'Zone', 'Statut'].map((h) => (
@@ -106,6 +107,7 @@ export default function Vendors() {
               ))}
             </tbody>
           </table>
+</div>
         )}
       </Card>
     </div>

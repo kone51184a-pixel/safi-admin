@@ -49,7 +49,8 @@ export default function Stock() {
         {loading ? (
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Chargement…</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['Produit', 'Vendeur', 'Quantité', 'Seuil', 'Statut', 'Ajuster'].map((h) => (
@@ -82,6 +83,7 @@ export default function Stock() {
               })}
             </tbody>
           </table>
+</div>
         )}
       </Card>
 
@@ -90,7 +92,8 @@ export default function Stock() {
         {movements.length === 0 ? (
           <p style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucun mouvement enregistré.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <div className="table-scroll">
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
                 {['Date', 'Produit', 'Mouvement', 'Quantité', 'Par'].map((h) => (
@@ -112,6 +115,7 @@ export default function Stock() {
               ))}
             </tbody>
           </table>
+</div>
         )}
       </Card>
     </div>
