@@ -3,17 +3,19 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Card, Button, Field, inputStyle, StatusPill } from '../components/UI';
 
+const emptyForm = { name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '', photo_url: '' };
+
 export default function Products() {
   const { token } = useAuth();
   const [products, setProducts] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '', photo_url: '',
-  });
+  const [busyId, setBusyId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
 
   async function load() {
     setLoading(true);
@@ -30,19 +32,49 @@ export default function Products() {
 
   useEffect(() => { load(); }, [token]);
 
+  function startEdit(product) {
+    setEditingId(product.id);
+    setForm({
+      name: product.name || '',
+      vendor_id: product.vendor_id || '',
+      price: product.price || '',
+      unit: product.unit || 'kg',
+      stock_quantity: product.stock_quantity || '',
+      description: product.description || '',
+      photo_url: product.photo_url || '',
+    });
+    setShowForm(true);
+  }
+
+  function startAdd() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  }
+
+  function cancelForm() {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
     setError('');
     try {
-      await api.createProduct(token, {
+      const payload = {
         ...form,
         price: Number(form.price),
         stock_quantity: Number(form.stock_quantity || 0),
         vendor_id: form.vendor_id || null,
-      });
-      setForm({ name: '', vendor_id: '', price: '', unit: 'kg', stock_quantity: '', description: '', photo_url: '' });
-      setShowForm(false);
+      };
+      if (editingId) {
+        await api.updateProduct(token, editingId, payload);
+      } else {
+        await api.createProduct(token, payload);
+      }
+      cancelForm();
       await load();
     } catch (err) {
       setError(err.message);
@@ -51,20 +83,46 @@ export default function Products() {
     }
   }
 
+  async function handleArchive(id, name) {
+    if (!window.confirm(`Retirer "${name}" du catalogue ? Il ne sera plus visible par les clients (mais reste dans l'historique des commandes passées).`)) return;
+    setBusyId(id);
+    try {
+      await api.archiveProduct(token, id);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleRepublish(id) {
+    setBusyId(id);
+    try {
+      await api.updateProduct(token, id, { status: 'published' });
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22, flexWrap: 'wrap', gap: 10 }}>
         <div>
           <h2 style={{ fontSize: 20 }}>Produits</h2>
           <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 2 }}>Catalogue, lié aux vendeurs</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Annuler' : '+ Ajouter un article'}</Button>
+        <Button onClick={showForm ? cancelForm : startAdd}>{showForm ? 'Annuler' : '+ Ajouter un article'}</Button>
       </div>
 
       {showForm && (
         <Card>
+          <h4 style={{ fontSize: 13.5, marginBottom: 12 }}>{editingId ? "Modifier l'article" : 'Nouvel article'}</h4>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="form-grid-responsive" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <Field label="Nom de l'article">
                 <input style={inputStyle} required value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex : Tomates fraîches" />
@@ -111,7 +169,9 @@ export default function Products() {
               )}
             </div>
             {error && <p style={{ color: 'var(--tomato)', fontSize: 12, marginBottom: 10 }}>{error}</p>}
-            <Button type="submit" variant="leaf" disabled={saving}>{saving ? 'Enregistrement…' : "Enregistrer l'article"}</Button>
+            <Button type="submit" variant="leaf" disabled={saving}>
+              {saving ? 'Enregistrement…' : editingId ? 'Enregistrer les modifications' : "Enregistrer l'article"}
+            </Button>
           </form>
         </Card>
       )}
@@ -123,10 +183,10 @@ export default function Products() {
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucun produit pour l'instant.</p>
         ) : (
           <div className="table-scroll">
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['', 'Produit', 'Vendeur', 'Prix', 'Stock', 'Statut'].map((h) => (
+                {['', 'Produit', 'Vendeur', 'Prix', 'Stock', 'Statut', 'Actions'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -146,11 +206,21 @@ export default function Products() {
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{Number(p.price).toLocaleString()} F/{p.unit}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{p.stock_quantity}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={p.status} /></td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => startEdit(p)} style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 7, padding: '5px 9px', fontSize: 11, cursor: 'pointer' }}>Modifier</button>
+                      {p.status === 'published' ? (
+                        <button disabled={busyId === p.id} onClick={() => handleArchive(p.id, p.name)} style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 7, padding: '5px 9px', fontSize: 11, cursor: 'pointer', color: 'var(--tomato)' }}>Retirer</button>
+                      ) : (
+                        <button disabled={busyId === p.id} onClick={() => handleRepublish(p.id)} style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 7, padding: '5px 9px', fontSize: 11, cursor: 'pointer', color: 'var(--success)' }}>Republier</button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-</div>
+          </div>
         )}
       </Card>
     </div>

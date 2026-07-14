@@ -8,6 +8,7 @@ const STATUSES = ['pending', 'awaiting_matching', 'confirmed', 'picked_up', 'in_
 export default function Orders() {
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [deliverers, setDeliverers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(null);
@@ -15,8 +16,9 @@ export default function Orders() {
   async function load() {
     setLoading(true);
     try {
-      const data = await api.getOrders(token);
-      setOrders(data);
+      const [o, d] = await Promise.all([api.getOrders(token), api.getDeliverers(token)]);
+      setOrders(o);
+      setDeliverers(d);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -26,10 +28,10 @@ export default function Orders() {
 
   useEffect(() => { load(); }, [token]);
 
-  async function handleStatusChange(orderId, newStatus) {
+  async function handleStatusChange(orderId, newStatus, delivererId) {
     setUpdating(orderId);
     try {
-      await api.updateOrderStatus(token, orderId, newStatus);
+      await api.updateOrderStatus(token, orderId, newStatus, delivererId);
       await load();
     } catch (err) {
       setError(err.message);
@@ -54,10 +56,10 @@ export default function Orders() {
           <p style={{ padding: 18, fontSize: 12.5, color: 'var(--ink-soft)' }}>Aucune commande pour l'instant.</p>
         ) : (
           <div className="table-scroll">
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['N°', 'Client', 'Type', 'Détail', 'Montant', 'Statut', 'Changer statut'].map((h) => (
+                {['N°', 'Client', 'Type', 'Détail', 'Montant', 'Statut', 'Livreur', 'Changer statut'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -68,17 +70,30 @@ export default function Orders() {
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{o.order_number}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{o.client_name || '—'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{o.order_type === 'free_request' ? 'Demande libre' : 'Catalogue'}</td>
-                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 220, fontSize: 11.5, color: 'var(--ink-soft)' }}>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 200, fontSize: 11.5, color: 'var(--ink-soft)' }}>
                     {o.free_request_description || '—'}
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{o.total ? `${Number(o.total).toLocaleString()} F` : '—'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={o.status} /></td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
                     <select
+                      style={{ ...inputStyle, padding: '5px 8px', fontSize: 11.5 }}
+                      value={o.deliverer_id || ''}
+                      disabled={updating === o.id}
+                      onChange={(e) => handleStatusChange(o.id, o.status, e.target.value || null)}
+                    >
+                      <option value="">— Non assigné —</option>
+                      {deliverers.map((d) => (
+                        <option key={d.id} value={d.id}>{d.full_name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
+                    <select
                       style={{ ...inputStyle, padding: '6px 8px', fontSize: 11.5 }}
                       value={o.status}
                       disabled={updating === o.id}
-                      onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(o.id, e.target.value, o.deliverer_id)}
                     >
                       {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -87,7 +102,7 @@ export default function Orders() {
               ))}
             </tbody>
           </table>
-</div>
+          </div>
         )}
       </Card>
     </div>

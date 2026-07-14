@@ -32,6 +32,9 @@ const icons = {
   logout: (
     <svg {...iconProps}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
   ),
+  delivery: (
+    <svg {...iconProps}><circle cx="5.5" cy="17.5" r="2.5" /><circle cx="18.5" cy="17.5" r="2.5" /><path d="M3 17.5h2M14 6h4l3 3v6.5h-2M14 6v11.5h5M14 6l-2.5 5H5M9 11l2.5-5" /></svg>
+  ),
   logo: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 6 5 9.5 5 13a7 7 0 0014 0c0-3.5-3-7-7-11z" /></svg>
   ),
@@ -42,6 +45,7 @@ const navItems = [
   { to: '/vendeurs', label: 'Vendeurs', icon: icons.vendors },
   { to: '/produits', label: 'Produits', icon: icons.products },
   { to: '/commandes', label: 'Commandes', icon: icons.orders },
+  { to: '/livreurs', label: 'Livreurs', icon: icons.delivery },
   { to: '/stock', label: 'Stock', icon: icons.stock },
   { to: '/utilisateurs', label: 'Utilisateurs', icon: icons.users },
   { to: '/comptabilite', label: 'Comptabilité', icon: icons.accounting },

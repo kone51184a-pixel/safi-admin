@@ -24,10 +24,12 @@ export const api = {
   getVendors: (token) => request('/vendors', { token }),
   createVendor: (token, vendor) => request('/vendors', { method: 'POST', body: vendor, token }),
   updateVendor: (token, id, vendor) => request(`/vendors/${id}`, { method: 'PUT', body: vendor, token }),
+  deleteVendor: (token, id) => request(`/vendors/${id}`, { method: 'DELETE', token }),
 
   getProducts: (token) => request('/products', { token }),
   createProduct: (token, product) => request('/products', { method: 'POST', body: product, token }),
   updateProduct: (token, id, product) => request(`/products/${id}`, { method: 'PUT', body: product, token }),
+  archiveProduct: (token, id) => request(`/products/${id}`, { method: 'DELETE', token }),
   adjustStock: (token, id, quantity_change, reason) => request(`/products/${id}/stock`, { method: 'PATCH', body: { quantity_change, reason }, token }),
   getStockMovements: (token) => request('/products/stock/movements', { token }),
 
@@ -39,4 +41,9 @@ export const api = {
   getClients: (token) => request('/users', { token }),
   toggleClientActive: (token, id) => request(`/users/${id}/toggle-active`, { method: 'PATCH', token }),
   getRoles: (token) => request('/users/roles', { token }),
+
+  getDeliverers: (token) => request('/deliverers', { token }),
+  createDeliverer: (token, deliverer) => request('/deliverers', { method: 'POST', body: deliverer, token }),
+  updateDeliverer: (token, id, deliverer) => request(`/deliverers/${id}`, { method: 'PATCH', body: deliverer, token }),
+  deleteDeliverer: (token, id) => request(`/deliverers/${id}`, { method: 'DELETE', token }),
 };
