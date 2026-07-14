@@ -46,4 +46,6 @@ export const api = {
   createDeliverer: (token, deliverer) => request('/deliverers', { method: 'POST', body: deliverer, token }),
   updateDeliverer: (token, id, deliverer) => request(`/deliverers/${id}`, { method: 'PATCH', body: deliverer, token }),
   deleteDeliverer: (token, id) => request(`/deliverers/${id}`, { method: 'DELETE', token }),
+
+  getCategories: (token) => request('/categories', { token }),
 };
