@@ -35,8 +35,8 @@ export const api = {
 
   getOrders: (token) => request('/orders', { token }),
   getOrder: (token, id) => request(`/orders/${id}`, { token }),
-  updateOrderStatus: (token, id, status, deliverer_id) =>
-    request(`/orders/${id}/status`, { method: 'PATCH', body: { status, deliverer_id }, token }),
+  updateOrderStatus: (token, id, status, deliverer_id, total) =>
+    request(`/orders/${id}/status`, { method: 'PATCH', body: { status, deliverer_id, total }, token }),
 
   getClients: (token) => request('/users', { token }),
   toggleClientActive: (token, id) => request(`/users/${id}/toggle-active`, { method: 'PATCH', token }),
@@ -48,4 +48,12 @@ export const api = {
   deleteDeliverer: (token, id) => request(`/deliverers/${id}`, { method: 'DELETE', token }),
 
   getCategories: (token) => request('/categories', { token }),
+
+  getSettings: (token) => request('/settings', { token }),
+  updateSetting: (token, key, value) => request(`/settings/${key}`, { method: 'PATCH', body: { value }, token }),
+
+  getProducers: (token) => request('/producers', { token }),
+  createProducer: (token, producer) => request('/producers', { method: 'POST', body: producer, token }),
+  updateProducer: (token, id, producer) => request(`/producers/${id}`, { method: 'PUT', body: producer, token }),
+  deleteProducer: (token, id) => request(`/producers/${id}`, { method: 'DELETE', token }),
 };
