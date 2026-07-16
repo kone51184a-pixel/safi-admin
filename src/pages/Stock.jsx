@@ -9,6 +9,7 @@ export default function Stock() {
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [error, setError] = useState('');
 
   async function load() {
     setLoading(true);
@@ -22,9 +23,17 @@ export default function Stock() {
 
   async function adjust(id, change) {
     setBusyId(id);
+    // Mise à jour locale immédiate (optimiste) pour que ça réagisse instantanément
+    setProducts((prev) => prev.map((p) => (
+      p.id === id ? { ...p, stock_quantity: Number(p.stock_quantity) + change } : p
+    )));
     try {
       await api.adjustStock(token, id, change, change > 0 ? 'réappro' : 'ajustement manuel');
-      await load();
+      // Rafraîchit juste l'historique des mouvements en tâche de fond, pas besoin de re-bloquer l'écran
+      api.getStockMovements(token).then(setMovements).catch(() => {});
+    } catch (err) {
+      setError(err.message);
+      await load(); // en cas d'erreur, on resynchronise pour ne pas laisser un état local incorrect
     } finally {
       setBusyId(null);
     }
@@ -44,6 +53,7 @@ export default function Stock() {
           ⚠ {lowStock.length} produit(s) en stock faible ou rupture
         </div>
       )}
+      {error && <p style={{ color: 'var(--tomato)', fontSize: 12, marginBottom: 12 }}>{error}</p>}
 
       <Card style={{ padding: 0 }}>
         {loading ? (

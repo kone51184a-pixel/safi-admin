@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Card, Button, Field, inputStyle } from '../components/UI';
 
-const emptyForm = { full_name: '', phone: '', address: '', date_of_birth: '', matricule: '' };
+const emptyForm = { full_name: '', phone: '', address: '', date_of_birth: '', matricule: '', nina: '' };
 
 export default function Deliverers() {
   const { token } = useAuth();
@@ -38,6 +38,7 @@ export default function Deliverers() {
       address: d.address || '',
       date_of_birth: d.date_of_birth ? d.date_of_birth.slice(0, 10) : '',
       matricule: d.matricule || '',
+      nina: d.nina || '',
     });
     setShowForm(true);
   }
@@ -133,6 +134,10 @@ export default function Deliverers() {
                 <input style={inputStyle} value={form.matricule}
                   onChange={(e) => setForm({ ...form, matricule: e.target.value })} placeholder="Ex : SAFI-LIV-001" />
               </Field>
+              <Field label="NINA">
+                <input style={inputStyle} value={form.nina}
+                  onChange={(e) => setForm({ ...form, nina: e.target.value })} placeholder="Numéro d'Identification Nationale" />
+              </Field>
             </div>
             {error && <p style={{ color: 'var(--tomato)', fontSize: 12, marginBottom: 10 }}>{error}</p>}
             <Button type="submit" variant="leaf" disabled={saving}>
@@ -152,7 +157,7 @@ export default function Deliverers() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['Nom', 'Matricule', 'Téléphone', 'Statut', 'En course', 'Actions'].map((h) => (
+                {['Nom', 'Matricule', 'NINA', 'Téléphone', 'Statut', 'En course', 'Actions'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -162,6 +167,7 @@ export default function Deliverers() {
                 <tr key={d.id}>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontWeight: 600 }}>{d.full_name}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{d.matricule || '—'}</td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{d.nina || '—'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{d.phone}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
                     <select

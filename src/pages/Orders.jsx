@@ -12,6 +12,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(null);
+  const [priceDrafts, setPriceDrafts] = useState({});
 
   async function load() {
     setLoading(true);
@@ -28,10 +29,24 @@ export default function Orders() {
 
   useEffect(() => { load(); }, [token]);
 
-  async function handleStatusChange(orderId, newStatus, delivererId) {
+  async function handleUpdate(orderId, patch) {
     setUpdating(orderId);
     try {
-      await api.updateOrderStatus(token, orderId, newStatus, delivererId);
+      await api.updateOrderStatus(token, orderId, patch.status, patch.deliverer_id, patch.total);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUpdating(null);
+    }
+  }
+
+  async function handleSetPrice(order) {
+    const value = priceDrafts[order.id];
+    if (!value) return;
+    setUpdating(order.id);
+    try {
+      await api.updateOrderStatus(token, order.id, order.status, order.deliverer_id, Number(value));
       await load();
     } catch (err) {
       setError(err.message);
@@ -59,7 +74,7 @@ export default function Orders() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['N°', 'Client', 'Type', 'Détail', 'Montant', 'Statut', 'Livreur', 'Changer statut'].map((h) => (
+                {['N°', 'Client', 'Type', 'Articles / demande', 'Bio', 'Montant', 'Statut', 'Livreur', 'Changer statut'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -70,17 +85,41 @@ export default function Orders() {
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{o.order_number}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{o.client_name || '—'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{o.order_type === 'free_request' ? 'Demande libre' : 'Catalogue'}</td>
-                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 200, fontSize: 11.5, color: 'var(--ink-soft)' }}>
-                    {o.free_request_description || '—'}
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 220, fontSize: 11.5, color: 'var(--ink-soft)' }}>
+                    {o.order_type === 'free_request' ? (o.free_request_description || '—') : (o.items_summary || '—')}
                   </td>
-                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{o.total ? `${Number(o.total).toLocaleString()} F` : '—'}</td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontSize: 11.5 }}>
+                    {o.wants_bio === true ? '🌱 Oui' : o.wants_bio === false ? 'Non' : '—'}
+                  </td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>
+                    {o.total && Number(o.total) > 0 ? (
+                      `${Number(o.total).toLocaleString()} F`
+                    ) : o.order_type === 'free_request' ? (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <input
+                          type="number"
+                          placeholder="Prix F"
+                          value={priceDrafts[o.id] || ''}
+                          onChange={(e) => setPriceDrafts({ ...priceDrafts, [o.id]: e.target.value })}
+                          style={{ ...inputStyle, width: 80, padding: '5px 8px', fontSize: 11 }}
+                        />
+                        <button
+                          disabled={updating === o.id}
+                          onClick={() => handleSetPrice(o)}
+                          style={{ border: '1px solid var(--line)', background: 'var(--leaf)', color: 'white', borderRadius: 7, padding: '5px 9px', fontSize: 11, cursor: 'pointer' }}
+                        >
+                          Fixer
+                        </button>
+                      </div>
+                    ) : '—'}
+                  </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={o.status} /></td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
                     <select
                       style={{ ...inputStyle, padding: '5px 8px', fontSize: 11.5 }}
                       value={o.deliverer_id || ''}
                       disabled={updating === o.id}
-                      onChange={(e) => handleStatusChange(o.id, o.status, e.target.value || null)}
+                      onChange={(e) => handleUpdate(o.id, { status: o.status, deliverer_id: e.target.value || null })}
                     >
                       <option value="">— Non assigné —</option>
                       {deliverers.map((d) => (
@@ -93,7 +132,7 @@ export default function Orders() {
                       style={{ ...inputStyle, padding: '6px 8px', fontSize: 11.5 }}
                       value={o.status}
                       disabled={updating === o.id}
-                      onChange={(e) => handleStatusChange(o.id, e.target.value, o.deliverer_id)}
+                      onChange={(e) => handleUpdate(o.id, { status: e.target.value, deliverer_id: o.deliverer_id })}
                     >
                       {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>

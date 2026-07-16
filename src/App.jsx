@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Vendors from './pages/Vendors';
+import Producers from './pages/Producers';
 import Products from './pages/Products';
 import Orders from './pages/Orders';
 import Deliverers from './pages/Deliverers';
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/vendeurs" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+          <Route path="/producteurs" element={<ProtectedRoute><Producers /></ProtectedRoute>} />
           <Route path="/produits" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/commandes" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/livreurs" element={<ProtectedRoute><Deliverers /></ProtectedRoute>} />

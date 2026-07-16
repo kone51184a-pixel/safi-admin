@@ -3,12 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Card, Button, Field, inputStyle, StatusPill } from '../components/UI';
 
-const emptyForm = { name: '', vendor_id: '', category_id: '', price: '', unit: 'kg', stock_quantity: '', stock_alert_threshold: '', description: '', photo_url: '' };
+const emptyForm = { name: '', vendor_id: '', producer_id: '', category_id: '', price: '', unit: 'kg', stock_quantity: '', stock_alert_threshold: '', description: '', photo_url: '' };
 
 export default function Products() {
   const { token } = useAuth();
   const [products, setProducts] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [producers, setProducers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -21,10 +22,11 @@ export default function Products() {
   async function load() {
     setLoading(true);
     try {
-      const [p, v, c] = await Promise.all([api.getProducts(token), api.getVendors(token), api.getCategories(token)]);
+      const [p, v, c, pr] = await Promise.all([api.getProducts(token), api.getVendors(token), api.getCategories(token), api.getProducers(token)]);
       setProducts(p);
       setVendors(v);
       setCategories(c);
+      setProducers(pr);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -39,6 +41,7 @@ export default function Products() {
     setForm({
       name: product.name || '',
       vendor_id: product.vendor_id || '',
+      producer_id: product.producer_id || '',
       category_id: product.category_id || '',
       price: product.price || '',
       unit: product.unit || 'kg',
@@ -73,6 +76,7 @@ export default function Products() {
         stock_quantity: Number(form.stock_quantity || 0),
         stock_alert_threshold: form.stock_alert_threshold ? Number(form.stock_alert_threshold) : undefined,
         vendor_id: form.vendor_id || null,
+        producer_id: form.producer_id || null,
         category_id: form.category_id || null,
       };
       if (editingId) {
@@ -142,12 +146,21 @@ export default function Products() {
                   ))}
                 </select>
               </Field>
-              <Field label="Vendeur associé">
+              <Field label="Vendeur associé (marché)">
                 <select style={inputStyle} value={form.vendor_id}
                   onChange={(e) => setForm({ ...form, vendor_id: e.target.value })}>
                   <option value="">— Aucun / à définir —</option>
                   {vendors.map((v) => (
                     <option key={v.id} value={v.id}>{v.full_name} — {v.market_zone}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Producteur associé (gros)">
+                <select style={inputStyle} value={form.producer_id}
+                  onChange={(e) => setForm({ ...form, producer_id: e.target.value })}>
+                  <option value="">— Aucun / à définir —</option>
+                  {producers.map((p) => (
+                    <option key={p.id} value={p.id}>{p.full_name} — {p.location}</option>
                   ))}
                 </select>
               </Field>
