@@ -11,6 +11,7 @@ import Deliverers from './pages/Deliverers';
 import Stock from './pages/Stock';
 import Users from './pages/Users';
 import Accounting from './pages/Accounting';
+import Reviews from './pages/Reviews';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/stock" element={<ProtectedRoute><Stock /></ProtectedRoute>} />
           <Route path="/utilisateurs" element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path="/comptabilite" element={<ProtectedRoute><Accounting /></ProtectedRoute>} />
+          <Route path="/avis" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
           <Route path="/parametres" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>

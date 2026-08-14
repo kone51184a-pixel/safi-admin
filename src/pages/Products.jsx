@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Card, Button, Field, inputStyle, StatusPill } from '../components/UI';
 
-const emptyForm = { name: '', vendor_id: '', producer_id: '', category_id: '', price: '', unit: 'kg', stock_quantity: '', stock_alert_threshold: '', description: '', photo_url: '' };
+const emptyForm = { name: '', vendor_id: '', producer_id: '', category_id: '', price: '', price_bio: '', unit: 'kg', stock_quantity: '', stock_alert_threshold: '', description: '', photo_url: '' };
 
 export default function Products() {
   const { token } = useAuth();
@@ -44,6 +44,7 @@ export default function Products() {
       producer_id: product.producer_id || '',
       category_id: product.category_id || '',
       price: product.price || '',
+      price_bio: product.price_bio || '',
       unit: product.unit || 'kg',
       stock_quantity: product.stock_quantity || '',
       stock_alert_threshold: product.stock_alert_threshold || '',
@@ -73,6 +74,7 @@ export default function Products() {
       const payload = {
         ...form,
         price: Number(form.price),
+        price_bio: form.price_bio ? Number(form.price_bio) : null,
         stock_quantity: Number(form.stock_quantity || 0),
         stock_alert_threshold: form.stock_alert_threshold ? Number(form.stock_alert_threshold) : undefined,
         vendor_id: form.vendor_id || null,
@@ -164,9 +166,13 @@ export default function Products() {
                   ))}
                 </select>
               </Field>
-              <Field label="Prix">
+              <Field label="Prix (standard)">
                 <input style={inputStyle} type="number" required value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="750" />
+              </Field>
+              <Field label="Prix (bio, optionnel)">
+                <input style={inputStyle} type="number" value={form.price_bio}
+                  onChange={(e) => setForm({ ...form, price_bio: e.target.value })} placeholder="Laisser vide si pas de version bio" />
               </Field>
               <Field label="Unité">
                 <select style={inputStyle} value={form.unit}
@@ -238,7 +244,10 @@ export default function Products() {
                     {p.category_name ? p.category_name : <span style={{ color: 'var(--tomato)' }}>Non classé</span>}
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{p.vendor_name || '—'}</td>
-                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{Number(p.price).toLocaleString()} F/{p.unit}</td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>
+                    {Number(p.price).toLocaleString()} F/{p.unit}
+                    {p.price_bio && <div style={{ color: 'var(--leaf)', fontSize: 11 }}>🌱 {Number(p.price_bio).toLocaleString()} F</div>}
+                  </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{p.stock_quantity}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={p.status} /></td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>

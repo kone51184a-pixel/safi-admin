@@ -38,6 +38,9 @@ const icons = {
   producer: (
     <svg {...iconProps}><path d="M12 2C8 6 5 9.5 5 13a7 7 0 0014 0c0-3.5-3-7-7-11z" /><path d="M12 13v8" /></svg>
   ),
+  star: (
+    <svg {...iconProps}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+  ),
   logo: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 6 5 9.5 5 13a7 7 0 0014 0c0-3.5-3-7-7-11z" /></svg>
   ),
@@ -53,6 +56,7 @@ const navItems = [
   { to: '/stock', label: 'Stock', icon: icons.stock },
   { to: '/utilisateurs', label: 'Utilisateurs', icon: icons.users },
   { to: '/comptabilite', label: 'Comptabilité', icon: icons.accounting },
+  { to: '/avis', label: 'Avis clients', icon: icons.star },
   { to: '/parametres', label: 'Paramètres', icon: icons.settings },
 ];
 
