@@ -51,7 +51,7 @@ export default function Orders() {
   async function handleSetPrice(order) {
     const value = priceDrafts[order.id];
     if (!value) return;
-    await handleUpdate(order.id, { total: Number(value) });
+    await handleUpdate(order.id, { subtotal: Number(value) });
   }
 
   async function handleSetFee(order) {
@@ -88,7 +88,7 @@ export default function Orders() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['N°', 'Client', 'Adresse', 'Type', 'Articles / demande', 'Bio', 'Frais livr.', 'Montant', 'Statut', 'Livreur', 'Réponse', 'SMS'].map((h) => (
+                {['N°', 'Client', 'Adresse', 'Type', 'Articles / demande', 'Bio', 'Prix produits', 'Frais livr.', 'Total', 'Statut', 'Livreur', 'Réponse', 'SMS'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -103,26 +103,16 @@ export default function Orders() {
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 160, fontSize: 11.5 }}>{o.delivery_address || <span style={{ color: 'var(--tomato)' }}>Non renseignée</span>}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>{o.order_type === 'free_request' ? 'Demande libre' : 'Catalogue'}</td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', maxWidth: 200, fontSize: 11.5, color: 'var(--ink-soft)' }}>
-                    {o.order_type === 'free_request' ? (o.free_request_description || '—') : (o.items_summary || '—')}
+                    {o.order_type === 'free_request' ? (
+                      <>{o.free_request_description || '—'}{o.free_request_quantity_kg && <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 600 }}> ({o.free_request_quantity_kg} kg)</span>}</>
+                    ) : (o.items_summary || '—')}
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontSize: 11.5 }}>
                     {o.wants_bio === true ? '🌱 Oui' : o.wants_bio === false ? 'Non' : '—'}
                   </td>
-                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <input
-                        type="number"
-                        placeholder={o.delivery_fee || '0'}
-                        value={feeDrafts[o.id] ?? ''}
-                        onChange={(e) => setFeeDrafts({ ...feeDrafts, [o.id]: e.target.value })}
-                        style={{ ...inputStyle, width: 65, padding: '5px 6px', fontSize: 11 }}
-                      />
-                      <button disabled={updating === o.id} onClick={() => handleSetFee(o)} style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 7, padding: '5px 7px', fontSize: 10.5, cursor: 'pointer' }}>OK</button>
-                    </div>
-                  </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>
-                    {o.total && Number(o.total) > 0 ? (
-                      `${Number(o.total).toLocaleString()} F`
+                    {o.subtotal && Number(o.subtotal) > 0 ? (
+                      `${Number(o.subtotal).toLocaleString()} F`
                     ) : o.order_type === 'free_request' ? (
                       <div style={{ display: 'flex', gap: 6 }}>
                         <input
@@ -141,6 +131,21 @@ export default function Orders() {
                         </button>
                       </div>
                     ) : '—'}
+                  </td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <input
+                        type="number"
+                        placeholder={o.delivery_fee || '0'}
+                        value={feeDrafts[o.id] ?? ''}
+                        onChange={(e) => setFeeDrafts({ ...feeDrafts, [o.id]: e.target.value })}
+                        style={{ ...inputStyle, width: 65, padding: '5px 6px', fontSize: 11 }}
+                      />
+                      <button disabled={updating === o.id} onClick={() => handleSetFee(o)} style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 7, padding: '5px 7px', fontSize: 10.5, cursor: 'pointer' }}>OK</button>
+                    </div>
+                  </td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono', fontWeight: 600 }}>
+                    {o.total && Number(o.total) > 0 ? `${Number(o.total).toLocaleString()} F` : '—'}
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={o.status} /></td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>

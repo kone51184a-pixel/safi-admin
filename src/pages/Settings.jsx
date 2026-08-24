@@ -153,7 +153,7 @@ export default function Settings() {
         </p>
 
         <EditableSetting
-          label="Numéro Orange Money"
+          label="Numéro Max it (Orange Money)"
           settingKey="orange_money_number"
           value={settings.orange_money_number || ''}
           onSaved={(v) => updateLocal('orange_money_number', v)}
@@ -165,6 +165,14 @@ export default function Settings() {
           settingKey="wave_number"
           value={settings.wave_number || ''}
           onSaved={(v) => updateLocal('wave_number', v)}
+          type="text"
+          placeholder="+223 70 00 00 00"
+        />
+        <EditableSetting
+          label="Numéro Moov Money"
+          settingKey="moov_money_number"
+          value={settings.moov_money_number || ''}
+          onSaved={(v) => updateLocal('moov_money_number', v)}
           type="text"
           placeholder="+223 70 00 00 00"
         />
