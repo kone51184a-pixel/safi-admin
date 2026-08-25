@@ -15,6 +15,7 @@ export default function Orders() {
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
   const [deliverers, setDeliverers] = useState([]);
+  const [clientSiteUrl, setClientSiteUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(null);
@@ -24,9 +25,10 @@ export default function Orders() {
   async function load() {
     setLoading(true);
     try {
-      const [o, d] = await Promise.all([api.getOrders(token), api.getDeliverers(token)]);
+      const [o, d, s] = await Promise.all([api.getOrders(token), api.getDeliverers(token), api.getSettings(token)]);
       setOrders(o);
       setDeliverers(d);
+      setClientSiteUrl(s.client_site_url || '');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -63,8 +65,8 @@ export default function Orders() {
   function smsLink(order) {
     const deliverer = deliverers.find((d) => d.id === order.deliverer_id);
     if (!deliverer) return null;
-    const link = `${window.location.origin.replace('safi-admin', 'safi-client')}/livreur/${order.id}`;
-    // NB : lien générique — remplace l'URL ci-dessous par celle de ton vrai site client si le remplacement automatique ne correspond pas
+    const base = clientSiteUrl || window.location.origin;
+    const link = `${base}/livreur/${order.id}`;
     const body = `SAFi - Nouvelle course ${order.order_number}. Client: ${order.client_name || ''} (${order.client_phone || ''}). Adresse: ${order.delivery_address || 'non renseignée'}. Articles: ${order.items_summary || order.free_request_description || ''}. Répondre ici: ${link}`;
     return `sms:${deliverer.phone}?body=${encodeURIComponent(body)}`;
   }

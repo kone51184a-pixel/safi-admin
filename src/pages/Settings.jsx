@@ -144,6 +144,18 @@ export default function Settings() {
 
         <SettingsRow title="Zones & tarifs de livraison" desc="Le prix exact par commande se règle directement dans Commandes (varie selon la distance)"
           action={null} />
+
+        <EditableSetting
+          label="Adresse du site client"
+          settingKey="client_site_url"
+          value={settings.client_site_url || ''}
+          onSaved={(v) => updateLocal('client_site_url', v)}
+          type="text"
+          placeholder="https://..."
+        />
+        <p style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: -8, marginBottom: 4 }}>
+          Utilisée pour le lien envoyé par SMS au livreur — mets-la à jour si l'adresse du site change (ex: quand tu passeras sur safi.ml).
+        </p>
       </Card>
 
       <Card>
