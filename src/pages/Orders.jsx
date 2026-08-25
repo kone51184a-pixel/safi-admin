@@ -11,6 +11,12 @@ const RESPONSE_LABEL = {
   refused: { text: '✕ Refusée', color: 'var(--tomato)' },
 };
 
+const PAYMENT_METHOD_LABEL = {
+  wave: 'Wave',
+  maxit: 'Max it (Orange)',
+  cash_on_delivery: 'À la livraison',
+};
+
 export default function Orders() {
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
@@ -62,6 +68,15 @@ export default function Orders() {
     await handleUpdate(order.id, { delivery_fee: Number(value) });
   }
 
+  function togglePaymentVerified(order) {
+    handleUpdate(order.id, { payment_verified: !order.payment_verified });
+  }
+
+  function copyReference(reference) {
+    if (!reference) return;
+    navigator.clipboard.writeText(reference);
+  }
+
   function smsLink(order) {
     const deliverer = deliverers.find((d) => d.id === order.deliverer_id);
     if (!deliverer) return null;
@@ -90,7 +105,7 @@ export default function Orders() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
-                {['N°', 'Client', 'Adresse', 'Type', 'Articles / demande', 'Bio', 'Prix produits', 'Frais livr.', 'Total', 'Statut', 'Livreur', 'Réponse', 'SMS'].map((h) => (
+                {['N°', 'Client', 'Adresse', 'Type', 'Articles / demande', 'Bio', 'Prix produits', 'Frais livr.', 'Total', 'Paiement', 'Statut', 'Livreur', 'Réponse', 'SMS'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', fontFamily: 'JetBrains Mono', fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-soft)', padding: '9px 10px', borderBottom: '1.5px solid var(--line)' }}>{h}</th>
                 ))}
               </tr>
@@ -98,6 +113,7 @@ export default function Orders() {
             <tbody>
               {orders.map((o) => {
                 const link = smsLink(o);
+                const needsPaymentCheck = o.payment_method && o.payment_method !== 'cash_on_delivery';
                 return (
                 <tr key={o.id}>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono' }}>{o.order_number}</td>
@@ -148,6 +164,44 @@ export default function Orders() {
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', fontFamily: 'JetBrains Mono', fontWeight: 600 }}>
                     {o.total && Number(o.total) > 0 ? `${Number(o.total).toLocaleString()} F` : '—'}
+                  </td>
+                  <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)', minWidth: 150 }}>
+                    {needsPaymentCheck ? (
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 3 }}>
+                          {PAYMENT_METHOD_LABEL[o.payment_method] || o.payment_method}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                          <span className="mono" style={{ fontSize: 11, color: 'var(--ink-soft)', wordBreak: 'break-all' }}>
+                            {o.payment_reference || '— pas de référence —'}
+                          </span>
+                          {o.payment_reference && (
+                            <button
+                              onClick={() => copyReference(o.payment_reference)}
+                              style={{ border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 6, padding: '2px 6px', fontSize: 9.5, cursor: 'pointer', flexShrink: 0 }}
+                            >
+                              Copier
+                            </button>
+                          )}
+                        </div>
+                        <button
+                          disabled={updating === o.id}
+                          onClick={() => togglePaymentVerified(o)}
+                          style={{
+                            border: '1px solid var(--line)', borderRadius: 7, padding: '4px 8px', fontSize: 10.5, cursor: 'pointer',
+                            background: o.payment_verified ? 'var(--success)' : 'var(--card)',
+                            color: o.payment_verified ? 'white' : 'var(--ink)',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {o.payment_verified ? '✓ Paiement vérifié' : 'Marquer comme vérifié'}
+                        </button>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
+                        {PAYMENT_METHOD_LABEL[o.payment_method] || '—'}
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}><StatusPill status={o.status} /></td>
                   <td style={{ padding: '11px 10px', borderBottom: '1px solid var(--line)' }}>
