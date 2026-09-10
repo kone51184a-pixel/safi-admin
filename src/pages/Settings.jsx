@@ -95,6 +95,8 @@ export default function Settings() {
 
   const [settings, setSettings] = useState({});
   const [error, setError] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
 
   async function load() {
     try {
@@ -109,6 +111,23 @@ export default function Settings() {
 
   function updateLocal(key, value) {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function resetClientData() {
+    const confirmed = window.prompt('Cette action supprimera toutes les commandes et tous les comptes clients. Tape REINITIALISER pour confirmer.');
+    if (confirmed !== 'REINITIALISER') return;
+
+    setResetting(true);
+    setError('');
+    setResetMessage('');
+    try {
+      const result = await api.resetClientData(token);
+      setResetMessage(`${result.deleted.orders} commande(s) et ${result.deleted.clients} compte(s) client supprimés.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResetting(false);
+    }
   }
 
   return (
@@ -198,6 +217,22 @@ export default function Settings() {
           action={<Toggle on={logging} onClick={() => setLogging(!logging)} />} />
         <SettingsRow title="Sauvegarde automatique" desc="Fréquence : toutes les 24h"
           action={<Toggle on={autoBackup} onClick={() => setAutoBackup(!autoBackup)} />} />
+      </Card>
+
+      <Card>
+        <h4 style={{ fontSize: 13.5, marginBottom: 6, color: 'var(--tomato)' }}>Réinitialisation</h4>
+        <p style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginBottom: 12 }}>
+          Supprime les commandes, paiements, historiques, journaux, adresses et comptes clients. Le catalogue et les comptes admin sont conservés.
+        </p>
+        <button
+          type="button"
+          onClick={resetClientData}
+          disabled={resetting}
+          style={{ background: 'var(--tomato)', color: 'white', border: 'none', borderRadius: 9, padding: '9px 14px', fontSize: 12, fontWeight: 600, cursor: resetting ? 'wait' : 'pointer', opacity: resetting ? 0.6 : 1 }}
+        >
+          {resetting ? 'Réinitialisation…' : 'Supprimer les données clients'}
+        </button>
+        {resetMessage && <p style={{ color: 'var(--success)', fontSize: 11.5, marginTop: 10 }}>{resetMessage}</p>}
       </Card>
 
       <p style={{ fontSize: 11, color: 'var(--ink-soft)' }}>

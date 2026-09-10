@@ -39,6 +39,7 @@ export const api = {
     request(`/orders/${id}/status`, { method: 'PATCH', body: patch, token }),
 
   getClients: (token) => request('/users', { token }),
+  resetClientData: (token) => request('/users/reset-client-data', { method: 'POST', token }),
   toggleClientActive: (token, id) => request(`/users/${id}/toggle-active`, { method: 'PATCH', token }),
   getRoles: (token) => request('/users/roles', { token }),
   updateRole: (token, id, permissions) => request(`/users/roles/${id}`, { method: 'PATCH', body: permissions, token }),
