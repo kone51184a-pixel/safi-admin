@@ -179,7 +179,7 @@ export default function Products() {
                   onChange={(e) => setForm({ ...form, unit: e.target.value })}>
                   <option value="kg">kg</option>
                   <option value="sac">sac</option>
-                  <option value="pièce">pièce</option>
+                  <option value="piece">article</option>
                   <option value="litre">litre</option>
                 </select>
               </Field>
